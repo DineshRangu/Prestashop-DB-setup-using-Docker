@@ -1,0 +1,52 @@
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: tenant1_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: prestashop
+      MYSQL_USER: psuser
+      MYSQL_PASSWORD: pspassword
+    networks:
+      - ps-net
+    volumes:
+      - db_data_tenant1:/var/lib/mysql
+
+  prestashop:
+    image: prestashop/prestashop:8-apache
+    container_name: tenant1_shop
+    restart: always
+    depends_on:
+      - db
+    networks:
+      - ps-net
+    ports:
+      - "8082:80"
+    environment:
+      DB_SERVER: db
+      DB_USER: psuser
+      DB_PASSWD: pspassword
+      PS_INSTALL_AUTO: '1'
+      PS_DEV_MODE: '0'
+      PS_HOST_MODE: '1'
+      PS_ENABLE_SSL: '0'
+      PS_HANDLE_DYNAMIC_DOMAIN: '0'
+      PS_DOMAIN: localhost:8082
+      PS_LANGUAGE: en
+      PS_COUNTRY: US
+      PS_FOLDER_ADMIN: admin
+      PS_FOLDER_INSTALL: install
+      ADMIN_MAIL: dineshrangu797@gmail.com
+      ADMIN_PASSWD: lab-password
+    volumes:
+      - ps_data_tenant1:/var/www/html
+
+volumes:
+  db_data_tenant1:
+  ps_data_tenant1:
+
+networks:
+  ps-net:
+    driver: bridge
